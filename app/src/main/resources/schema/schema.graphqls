@@ -1,0 +1,19 @@
+type Query {
+    show(id: ID!): Show
+}
+
+type Mutation {
+    updateShow(input: UpdateShowInput!): Show
+}
+
+type Show  {
+    id: ID!
+    title: String
+    releaseYear: Int
+}
+
+input UpdateShowInput {
+    id: ID!
+    title: String
+    releaseYear: Int
+}

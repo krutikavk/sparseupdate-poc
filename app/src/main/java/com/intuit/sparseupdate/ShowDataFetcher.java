@@ -38,8 +38,9 @@ public class ShowDataFetcher {
             throw new DgsEntityNotFoundException(msg);
         }
 
-        Show updatedShow = simpleMapper(input);
+//        Show updatedShow = simpleMapper(input);
 //        Show updatedShow = ignoreNullMapper(show, input);
+        Show updatedShow = advancedMapper(show, input);
         data.put(input.getId(), updatedShow);
         return updatedShow;
     }
@@ -67,6 +68,24 @@ public class ShowDataFetcher {
     private Show ignoreNullMapper(Show beforeUpdate, UpdateShowInput input) {
         String title = input.getTitle() != null ? input.getTitle() : beforeUpdate.getTitle();
         Integer releaseYear = input.getReleaseYear() != null ? input.getReleaseYear(): beforeUpdate.getReleaseYear();
+        Show show = Show.newBuilder()
+                .id(input.getId())
+                .title(title)
+                .releaseYear(releaseYear)
+                .build();
+        return show;
+    }
+
+    private Show advancedMapper(Show beforeUpdate, UpdateShowInput input) {
+        String title = beforeUpdate.getTitle();
+        if (input.isSet(UpdateShowInput.Field.TITLE)) {
+            title = input.getTitle();
+        }
+        Integer releaseYear = beforeUpdate.getReleaseYear();
+        if (input.isSet(UpdateShowInput.Field.RELEASE_YEAR)) {
+            releaseYear = input.getReleaseYear();
+        }
+
         Show show = Show.newBuilder()
                 .id(input.getId())
                 .title(title)

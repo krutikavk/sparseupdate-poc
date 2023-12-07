@@ -1,12 +1,16 @@
 package com.intuit.sparseupdate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intuit.sparseupdate.generated.DgsConstants;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
+import com.netflix.graphql.dgs.InputArgument;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
+import graphql.schema.DataFetchingEnvironment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,21 +31,39 @@ public class ShowDataFetcher {
         return data.get(id);
     }
 
-    @DgsMutation
-    public Show updateShow(UpdateShowInput input) {
-        if (input != null && input.getId() == null) {
+//    @DgsMutation
+//    public Show updateShow(UpdateShowInput input) {
+//        if (input != null && input.getId() == null) {
+//            throw new DgsBadRequestException("Invalid ID");
+//        }
+//        Show show = data.get(input.getId());
+//        if (show == null) {
+//            String msg = String.format("Show with id %s not found", input.getId());
+//            throw new DgsEntityNotFoundException(msg);
+//        }
+//
+//        Show updatedShow = simpleMapper(input);
+////        Show updatedShow = ignoreNullMapper(show, input);
+//        data.put(input.getId(), updatedShow);
+//        return updatedShow;
+//    }
+
+    @DgsMutation(field = DgsConstants.MUTATION.UpdateShow)
+    public Show updateShowManualDeserialization(DataFetchingEnvironment dfe) {
+        Map<String,Object> inputArgument = dfe.getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
+        UpdateShowInput manuallyDeserializedInput = new ObjectMapper().convertValue(inputArgument, UpdateShowInput.class);
+
+        if (manuallyDeserializedInput != null && manuallyDeserializedInput.getId() == null) {
             throw new DgsBadRequestException("Invalid ID");
         }
-        Show show = data.get(input.getId());
+        Show show = data.get(manuallyDeserializedInput.getId());
         if (show == null) {
-            String msg = String.format("Show with id %s not found", input.getId());
+            String msg = String.format("Show with id %s not found", manuallyDeserializedInput.getId());
             throw new DgsEntityNotFoundException(msg);
         }
 
-//        Show updatedShow = simpleMapper(input);
-//        Show updatedShow = ignoreNullMapper(show, input);
-        Show updatedShow = advancedMapper(show, input);
-        data.put(input.getId(), updatedShow);
+        Show updatedShow = advancedMapper(show, manuallyDeserializedInput);
+        data.put(manuallyDeserializedInput.getId(), updatedShow);
         return updatedShow;
     }
 
@@ -50,6 +72,7 @@ public class ShowDataFetcher {
      * @param input
      * @return
      */
+    @SuppressWarnings("unused")
     private Show simpleMapper(UpdateShowInput input) {
         Show show = Show.newBuilder()
                 .id(input.getId())
@@ -65,6 +88,7 @@ public class ShowDataFetcher {
      * @param input
      * @return
      */
+    @SuppressWarnings("unused")
     private Show ignoreNullMapper(Show beforeUpdate, UpdateShowInput input) {
         String title = input.getTitle() != null ? input.getTitle() : beforeUpdate.getTitle();
         Integer releaseYear = input.getReleaseYear() != null ? input.getReleaseYear(): beforeUpdate.getReleaseYear();

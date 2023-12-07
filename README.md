@@ -19,3 +19,8 @@ cd app
 
 * To fix the null problem, update mapper to retain field values if the input is null.  Though it would fix the above issue, but if I want to set a field explicitly to `null`, I won't be able to do it. 
 ![updateShow Mutation using ignore Null mapper](./images/updateShowIgnoreNullMapper.png)
+
+* Ideally the behavior should be something like this
+![Correct Behavior](./images/correctBehavior.png)
+  * Maintain a flag when some field is set
+  * In the mutation method, check whether the flag is set, if set, honor the value that was set.  If not, get it from previously stored state or default it.

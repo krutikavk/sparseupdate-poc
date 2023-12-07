@@ -1,7 +1,5 @@
 package com.intuit.sparseupdate.generated;
 
-import java.lang.String;
-
 public class DgsConstants {
   public static final String QUERY_TYPE = "Query";
 

@@ -1,16 +1,10 @@
 package com.intuit.sparseupdate.generated.types;
 
-import java.lang.Integer;
-import java.lang.Object;
-import java.lang.Override;
-import java.lang.String;
 import java.util.BitSet;
 
 public class UpdateShowInput {
   private String id;
-
   private String title;
-
   private Integer releaseYear;
 
   private final transient BitSet fieldsPresent = new BitSet();

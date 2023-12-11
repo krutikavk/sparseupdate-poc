@@ -9,18 +9,20 @@ import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
 import graphql.schema.DataFetchingEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static java.util.Locale.ENGLISH;
-
 @DgsComponent
 public class ShowDataFetcher {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShowDataFetcher.class);
     private final Map<String,Show> data = new HashMap<>();
 
     public ShowDataFetcher() {
@@ -37,7 +39,6 @@ public class ShowDataFetcher {
     public Show updateShowManualDeserialization(DataFetchingEnvironment dfe) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
         Map<String,Object> inputArgument = dfe.getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
-//        UpdateShowInput manuallyDeserializedInput = new ObjectMapper().convertValue(inputArgument, UpdateShowInput.class);
         Class<UpdateShowInput> targetClass = UpdateShowInput.class;
         UpdateShowInput inputThroughReflection = getInputArgument(inputArgument, targetClass);
 
@@ -67,7 +68,7 @@ public class ShowDataFetcher {
         T instance = ctor.newInstance();
         rawMap.forEach((key, value) -> {
             try {
-                invokeSetter(targetClass, instance, key, value);
+                setField(targetClass, instance, key, value);
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
@@ -77,31 +78,47 @@ public class ShowDataFetcher {
         return instance;
     }
 
-    private <T> void invokeSetter(Class<T> targetClass, T instance, String fieldName, Object fieldValue) throws InvocationTargetException, IllegalAccessException {
-        Method setter = setterMethod(targetClass, fieldName, fieldValue);
-        setter.invoke(instance, fieldValue);
+    private <T> void setField(Class<T> targetClass, T instance, String fieldName, Object fieldValue) throws IllegalAccessException, InvocationTargetException {
+        // Almost same code as com.netflix.graphql.dgs.internal.DefaultInputObjectMapper.mapToJavaObject()
+        Field field = ReflectionUtils.findField(targetClass, fieldName);
+        field.setAccessible(true);
+        field.set(instance, fieldValue);
+
+        //Cache this locally, so same operation is not done repeatedly for every field
+        String fieldEnumClassName = targetClass.getName() + ".Field";
+        Optional<Class<?>> fieldEnumClassOptional = Arrays.stream(targetClass.getClasses())
+                .filter(klass -> fieldEnumClassName.equals(klass.getCanonicalName()))
+                .findFirst();
+        if (fieldEnumClassOptional.isEmpty()) {
+            LOGGER.info("Model doesn't support 'Sparse Update' feature");
+            return;
+        }
+        Class<?> fieldEnumClass = fieldEnumClassOptional.get();
+        Method setFieldMethod = ReflectionUtils.findMethod(targetClass, "setField", fieldEnumClass);
+        if (setFieldMethod == null) {
+            LOGGER.info("Model doesn't support 'Sparse Update' feature");
+            return;
+        }
+
+        String enumString = convertCamelToScreamingSnakeCase(fieldName);
+        Optional<?> fieldEnumOptional = Arrays.stream(fieldEnumClass.getEnumConstants())
+                .filter(f -> enumString.equals(f.toString()))
+                .findFirst();
+        if (fieldEnumOptional.isEmpty()) {
+            LOGGER.info("Model doesn't support 'Sparse Update' feature");
+            return;
+        }
+        setFieldMethod.setAccessible(true);
+        setFieldMethod.invoke(instance, fieldEnumOptional.get());
     }
 
-    private <T> Method setterMethod(Class<T> targetClass, String fieldName, Object fieldValue) {
-        String setterMethodName = getSetterMethodName(fieldName);
-        //Reflection utils adds an empty array, can not find a method that matches any argument
-        //So explicitly set the arguments array to null
-        Class<?>[] arguments = null;
-        if (fieldValue != null) {
-            arguments = new Class<?>[] {fieldValue.getClass()};
+    private String convertCamelToScreamingSnakeCase(String input) {
+        if (input == null) {
+            return input;
         }
-        Method setterMethod = ReflectionUtils.findMethod(targetClass, setterMethodName, arguments);
-        if(setterMethod == null) {
-            throw new RuntimeException("Unable to find setter method");
-        }
-        return setterMethod;
-    }
-
-    private String getSetterMethodName(String fieldName) {
-        if (fieldName == null || fieldName.isEmpty()) {
-            return fieldName;
-        }
-        return "set" + fieldName.substring(0, 1).toUpperCase(ENGLISH) + fieldName.substring(1);
+        String regex = "(\\p{javaLowerCase})(\\p{javaUpperCase}+)";
+        String replacement = "$1_$2";
+        return input.replaceAll(regex, replacement).toUpperCase();
     }
 
     private Show advancedMapper(Show beforeUpdate, UpdateShowInput input) {

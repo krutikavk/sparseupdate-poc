@@ -1,25 +1,27 @@
 package com.intuit.sparseupdate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.sparseupdate.generated.DgsConstants;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
-import com.netflix.graphql.dgs.InputArgument;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
 import graphql.schema.DataFetchingEnvironment;
+import org.springframework.util.ReflectionUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+
+import static java.util.Locale.ENGLISH;
 
 @DgsComponent
 public class ShowDataFetcher {
 
-    private Map<String,Show> data = new HashMap<>();
+    private final Map<String,Show> data = new HashMap<>();
 
     public ShowDataFetcher() {
         Show one = createShow("one", "Show One", 2023);
@@ -31,73 +33,75 @@ public class ShowDataFetcher {
         return data.get(id);
     }
 
-//    @DgsMutation
-//    public Show updateShow(UpdateShowInput input) {
-//        if (input != null && input.getId() == null) {
-//            throw new DgsBadRequestException("Invalid ID");
-//        }
-//        Show show = data.get(input.getId());
-//        if (show == null) {
-//            String msg = String.format("Show with id %s not found", input.getId());
-//            throw new DgsEntityNotFoundException(msg);
-//        }
-//
-//        Show updatedShow = simpleMapper(input);
-////        Show updatedShow = ignoreNullMapper(show, input);
-//        data.put(input.getId(), updatedShow);
-//        return updatedShow;
-//    }
-
     @DgsMutation(field = DgsConstants.MUTATION.UpdateShow)
-    public Show updateShowManualDeserialization(DataFetchingEnvironment dfe) {
-        Map<String,Object> inputArgument = dfe.getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
-        UpdateShowInput manuallyDeserializedInput = new ObjectMapper().convertValue(inputArgument, UpdateShowInput.class);
+    public Show updateShowManualDeserialization(DataFetchingEnvironment dfe) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
-        if (manuallyDeserializedInput != null && manuallyDeserializedInput.getId() == null) {
+        Map<String,Object> inputArgument = dfe.getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
+//        UpdateShowInput manuallyDeserializedInput = new ObjectMapper().convertValue(inputArgument, UpdateShowInput.class);
+        Class<UpdateShowInput> targetClass = UpdateShowInput.class;
+        UpdateShowInput inputThroughReflection = getInputArgument(inputArgument, targetClass);
+
+        UpdateShowInput input = inputThroughReflection;
+
+        if (input != null && input.getId() == null) {
             throw new DgsBadRequestException("Invalid ID");
         }
-        Show show = data.get(manuallyDeserializedInput.getId());
+        Show show = data.get(input.getId());
         if (show == null) {
-            String msg = String.format("Show with id %s not found", manuallyDeserializedInput.getId());
+            String msg = String.format("Show with id %s not found", input.getId());
             throw new DgsEntityNotFoundException(msg);
         }
 
-        Show updatedShow = advancedMapper(show, manuallyDeserializedInput);
-        data.put(manuallyDeserializedInput.getId(), updatedShow);
+        Show updatedShow = advancedMapper(show, input);
+        data.put(input.getId(), updatedShow);
         return updatedShow;
     }
 
-    /**
-     * Map values from UpdateShowInput object as is to Show object
-     * @param input
-     * @return
-     */
-    @SuppressWarnings("unused")
-    private Show simpleMapper(UpdateShowInput input) {
-        Show show = Show.newBuilder()
-                .id(input.getId())
-                .title(input.getTitle())
-                .releaseYear(input.getReleaseYear())
-                .build();
-        return show;
+    //This mapping is similar to com.netflix.graphql.dgs.internal.DefaultInputObjectMapper.mapToJavaObject()
+    private <T> T getInputArgument(Map<String,Object> rawMap, Class<T> targetClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if (Objects.isNull(rawMap)  || rawMap.isEmpty()) {
+            throw new IllegalArgumentException("Invalid input");
+        }
+        Constructor<T> ctor = ReflectionUtils.accessibleConstructor(targetClass);
+        ReflectionUtils.makeAccessible(ctor);
+        T instance = ctor.newInstance();
+        rawMap.forEach((key, value) -> {
+            try {
+                invokeSetter(targetClass, instance, key, value);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return instance;
     }
 
-    /**
-     * Map values from UpdateShowInput object as is to Show object IF IT IS NOT NULL
-     * If the value from UpdateShowInput object is null, retain values before update
-     * @param input
-     * @return
-     */
-    @SuppressWarnings("unused")
-    private Show ignoreNullMapper(Show beforeUpdate, UpdateShowInput input) {
-        String title = input.getTitle() != null ? input.getTitle() : beforeUpdate.getTitle();
-        Integer releaseYear = input.getReleaseYear() != null ? input.getReleaseYear(): beforeUpdate.getReleaseYear();
-        Show show = Show.newBuilder()
-                .id(input.getId())
-                .title(title)
-                .releaseYear(releaseYear)
-                .build();
-        return show;
+    private <T> void invokeSetter(Class<T> targetClass, T instance, String fieldName, Object fieldValue) throws InvocationTargetException, IllegalAccessException {
+        Method setter = setterMethod(targetClass, fieldName, fieldValue);
+        setter.invoke(instance, fieldValue);
+    }
+
+    private <T> Method setterMethod(Class<T> targetClass, String fieldName, Object fieldValue) {
+        String setterMethodName = getSetterMethodName(fieldName);
+        //Reflection utils adds an empty array, can not find a method that matches any argument
+        //So explicitly set the arguments array to null
+        Class<?>[] arguments = null;
+        if (fieldValue != null) {
+            arguments = new Class<?>[] {fieldValue.getClass()};
+        }
+        Method setterMethod = ReflectionUtils.findMethod(targetClass, setterMethodName, arguments);
+        if(setterMethod == null) {
+            throw new RuntimeException("Unable to find setter method");
+        }
+        return setterMethod;
+    }
+
+    private String getSetterMethodName(String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return fieldName;
+        }
+        return "set" + fieldName.substring(0, 1).toUpperCase(ENGLISH) + fieldName.substring(1);
     }
 
     private Show advancedMapper(Show beforeUpdate, UpdateShowInput input) {

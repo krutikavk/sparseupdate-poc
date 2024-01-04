@@ -1,5 +1,6 @@
 package com.intuit.sparseupdate;
 
+import com.intuit.sparseupdate.generated.DgsConstants;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
 import com.netflix.graphql.dgs.DgsComponent;
@@ -7,15 +8,22 @@ import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
+import graphql.schema.DataFetchingEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 @DgsComponent
 public class ShowDataFetcher {
 
-    private Map<String,Show> data = new HashMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShowDataFetcher.class);
+    private final Map<String,Show> data = new HashMap<>();
 
     public ShowDataFetcher() {
         Show one = createShow("one", "Show One", 2023);
@@ -27,8 +35,15 @@ public class ShowDataFetcher {
         return data.get(id);
     }
 
-    @DgsMutation
-    public Show updateShow(UpdateShowInput input) {
+    @DgsMutation(field = DgsConstants.MUTATION.UpdateShow)
+    public Show updateShowManualDeserialization(DataFetchingEnvironment dfe) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        Map<String,Object> inputArgument = dfe.getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
+        Class<UpdateShowInput> targetClass = UpdateShowInput.class;
+        UpdateShowInput inputThroughReflection = getInputArgument(inputArgument, targetClass);
+
+        UpdateShowInput input = inputThroughReflection;
+
         if (input != null && input.getId() == null) {
             throw new DgsBadRequestException("Invalid ID");
         }
@@ -38,35 +53,84 @@ public class ShowDataFetcher {
             throw new DgsEntityNotFoundException(msg);
         }
 
-        Show updatedShow = simpleMapper(input);
-//        Show updatedShow = ignoreNullMapper(show, input);
+        Show updatedShow = advancedMapper(show, input);
         data.put(input.getId(), updatedShow);
         return updatedShow;
     }
 
-    /**
-     * Map values from UpdateShowInput object as is to Show object
-     * @param input
-     * @return
-     */
-    private Show simpleMapper(UpdateShowInput input) {
-        Show show = Show.newBuilder()
-                .id(input.getId())
-                .title(input.getTitle())
-                .releaseYear(input.getReleaseYear())
-                .build();
-        return show;
+    //This mapping is similar to com.netflix.graphql.dgs.internal.DefaultInputObjectMapper.mapToJavaObject()
+    private <T> T getInputArgument(Map<String,Object> rawMap, Class<T> targetClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if (Objects.isNull(rawMap)  || rawMap.isEmpty()) {
+            throw new IllegalArgumentException("Invalid input");
+        }
+        Constructor<T> ctor = ReflectionUtils.accessibleConstructor(targetClass);
+        ReflectionUtils.makeAccessible(ctor);
+        T instance = ctor.newInstance();
+        rawMap.forEach((key, value) -> {
+            try {
+                setField(targetClass, instance, key, value);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return instance;
     }
 
-    /**
-     * Map values from UpdateShowInput object as is to Show object IF IT IS NOT NULL
-     * If the value from UpdateShowInput object is null, retain values before update
-     * @param input
-     * @return
-     */
-    private Show ignoreNullMapper(Show beforeUpdate, UpdateShowInput input) {
-        String title = input.getTitle() != null ? input.getTitle() : beforeUpdate.getTitle();
-        Integer releaseYear = input.getReleaseYear() != null ? input.getReleaseYear(): beforeUpdate.getReleaseYear();
+    private <T> void setField(Class<T> targetClass, T instance, String fieldName, Object fieldValue) throws IllegalAccessException, InvocationTargetException {
+        // Almost same code as com.netflix.graphql.dgs.internal.DefaultInputObjectMapper.mapToJavaObject()
+        Field field = ReflectionUtils.findField(targetClass, fieldName);
+        field.setAccessible(true);
+        field.set(instance, fieldValue);
+
+        //Cache this locally, so same operation is not done repeatedly for every field
+        String fieldEnumClassName = targetClass.getName() + ".Field";
+        Optional<Class<?>> fieldEnumClassOptional = Arrays.stream(targetClass.getClasses())
+                .filter(klass -> fieldEnumClassName.equals(klass.getCanonicalName()))
+                .findFirst();
+        if (fieldEnumClassOptional.isEmpty()) {
+            LOGGER.info("Model doesn't support 'Sparse Update' feature");
+            return;
+        }
+        Class<?> fieldEnumClass = fieldEnumClassOptional.get();
+        Method setFieldMethod = ReflectionUtils.findMethod(targetClass, "setField", fieldEnumClass);
+        if (setFieldMethod == null) {
+            LOGGER.info("Model doesn't support 'Sparse Update' feature");
+            return;
+        }
+
+        String enumString = convertCamelToScreamingSnakeCase(fieldName);
+        Optional<?> fieldEnumOptional = Arrays.stream(fieldEnumClass.getEnumConstants())
+                .filter(f -> enumString.equals(f.toString()))
+                .findFirst();
+        if (fieldEnumOptional.isEmpty()) {
+            LOGGER.info("Model doesn't support 'Sparse Update' feature");
+            return;
+        }
+        setFieldMethod.setAccessible(true);
+        setFieldMethod.invoke(instance, fieldEnumOptional.get());
+    }
+
+    private String convertCamelToScreamingSnakeCase(String input) {
+        if (input == null) {
+            return input;
+        }
+        String regex = "(\\p{javaLowerCase})(\\p{javaUpperCase}+)";
+        String replacement = "$1_$2";
+        return input.replaceAll(regex, replacement).toUpperCase();
+    }
+
+    private Show advancedMapper(Show beforeUpdate, UpdateShowInput input) {
+        String title = beforeUpdate.getTitle();
+        if (input.isSet(UpdateShowInput.Field.TITLE)) {
+            title = input.getTitle();
+        }
+        Integer releaseYear = beforeUpdate.getReleaseYear();
+        if (input.isSet(UpdateShowInput.Field.RELEASE_YEAR)) {
+            releaseYear = input.getReleaseYear();
+        }
+
         Show show = Show.newBuilder()
                 .id(input.getId())
                 .title(title)

@@ -81,35 +81,15 @@ public class ShowDataFetcher {
     private <T> void setField(Class<T> targetClass, T instance, String fieldName, Object fieldValue) throws IllegalAccessException, InvocationTargetException {
         // Almost same code as com.netflix.graphql.dgs.internal.DefaultInputObjectMapper.mapToJavaObject()
         Field field = ReflectionUtils.findField(targetClass, fieldName);
+        String fieldSetterName = "is"+fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1)+"Defined";
+
+        Field fieldSetter = ReflectionUtils.findField(targetClass, fieldSetterName);
+
         field.setAccessible(true);
         field.set(instance, fieldValue);
 
-        //Cache this locally, so same operation is not done repeatedly for every field
-        String fieldEnumClassName = targetClass.getName() + ".Field";
-        Optional<Class<?>> fieldEnumClassOptional = Arrays.stream(targetClass.getClasses())
-                .filter(klass -> fieldEnumClassName.equals(klass.getCanonicalName()))
-                .findFirst();
-        if (fieldEnumClassOptional.isEmpty()) {
-            LOGGER.info("Model doesn't support 'Sparse Update' feature");
-            return;
-        }
-        Class<?> fieldEnumClass = fieldEnumClassOptional.get();
-        Method setFieldMethod = ReflectionUtils.findMethod(targetClass, "setField", fieldEnumClass);
-        if (setFieldMethod == null) {
-            LOGGER.info("Model doesn't support 'Sparse Update' feature");
-            return;
-        }
-
-        String enumString = convertCamelToScreamingSnakeCase(fieldName);
-        Optional<?> fieldEnumOptional = Arrays.stream(fieldEnumClass.getEnumConstants())
-                .filter(f -> enumString.equals(f.toString()))
-                .findFirst();
-        if (fieldEnumOptional.isEmpty()) {
-            LOGGER.info("Model doesn't support 'Sparse Update' feature");
-            return;
-        }
-        setFieldMethod.setAccessible(true);
-        setFieldMethod.invoke(instance, fieldEnumOptional.get());
+        fieldSetter.setAccessible(true);
+        fieldSetter.set(instance, true);
     }
 
     private String convertCamelToScreamingSnakeCase(String input) {
@@ -123,11 +103,14 @@ public class ShowDataFetcher {
 
     private Show advancedMapper(Show beforeUpdate, UpdateShowInput input) {
         String title = beforeUpdate.getTitle();
-        if (input.isSet(UpdateShowInput.Field.TITLE)) {
+        Integer releaseYear = beforeUpdate.getReleaseYear();
+
+        System.out.println("beforeUpdate: " + beforeUpdate + ", input: " + input + "input.isTitleDefined: " + input.getIsTitleDefined());
+
+        if(input.getIsTitleDefined()) {
             title = input.getTitle();
         }
-        Integer releaseYear = beforeUpdate.getReleaseYear();
-        if (input.isSet(UpdateShowInput.Field.RELEASE_YEAR)) {
+        if(input.getIsReleaseYearDefined()) {
             releaseYear = input.getReleaseYear();
         }
 

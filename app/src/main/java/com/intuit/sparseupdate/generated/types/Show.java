@@ -7,6 +7,10 @@ public class Show {
 
   private Integer releaseYear;
 
+  private Boolean isIdDefined = false;
+  private Boolean isTitleDefined = false;
+  private Boolean isReleaseYearDefined = false;
+
   public Show() {
   }
 
@@ -16,6 +20,7 @@ public class Show {
 
   public void setId(String id) {
     this.id = id;
+    this.isIdDefined = true;
   }
 
   public String getTitle() {
@@ -24,6 +29,7 @@ public class Show {
 
   public void setTitle(String title) {
     this.title = title;
+    this.isTitleDefined = true;
   }
 
   public Integer getReleaseYear() {
@@ -32,6 +38,19 @@ public class Show {
 
   public void setReleaseYear(Integer releaseYear) {
     this.releaseYear = releaseYear;
+    this.isReleaseYearDefined = true;
+  }
+
+  public boolean getIsIdDefined(){
+    return isIdDefined;
+  }
+
+  public boolean getIsTitleDefined(){
+    return isTitleDefined;
+  }
+
+  public boolean getIsReleaseYearDefined(){
+    return isReleaseYearDefined;
   }
 
   @Override
@@ -65,27 +84,54 @@ public class Show {
 
     private Integer releaseYear;
 
+    private boolean isIdDefined = false;
+
+    private boolean isTitleDefined = false;
+
+    private boolean isReleaseYearDefined = false;
+
     public Show build() {
-                  com.intuit.sparseupdate.generated.types.Show result = new com.intuit.sparseupdate.generated.types.Show();
-                      result.id = this.id;
-          result.title = this.title;
-          result.releaseYear = this.releaseYear;
-                      return result;
+      com.intuit.sparseupdate.generated.types.Show result = new com.intuit.sparseupdate.generated.types.Show();
+      if(this.isIdDefined) {
+        result.setId(this.id);
+      }
+      if(this.isTitleDefined) {
+        result.setTitle(this.title);
+      }
+      if(this.isReleaseYearDefined) {
+        result.setReleaseYear(this.releaseYear);
+      }
+      return result;
     }
 
     public com.intuit.sparseupdate.generated.types.Show.Builder id(String id) {
       this.id = id;
+      this.isIdDefined = true;
       return this;
     }
 
     public com.intuit.sparseupdate.generated.types.Show.Builder title(String title) {
       this.title = title;
+      this.isTitleDefined = true;
       return this;
     }
 
     public com.intuit.sparseupdate.generated.types.Show.Builder releaseYear(Integer releaseYear) {
       this.releaseYear = releaseYear;
+      this.isReleaseYearDefined = true;
       return this;
+    }
+
+    public boolean getIsIdDefined(){
+      return isIdDefined;
+    }
+
+    public boolean getIsTitleDefined(){
+      return isTitleDefined;
+    }
+
+    public boolean getIsReleaseYearDefined(){
+      return isReleaseYearDefined;
     }
   }
 }

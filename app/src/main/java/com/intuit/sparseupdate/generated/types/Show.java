@@ -1,17 +1,24 @@
 package com.intuit.sparseupdate.generated.types;
 
+import java.lang.Integer;
+import java.lang.Object;
+import java.lang.Override;
+import java.lang.String;
+
 public class Show {
   private String id;
 
-  private String title;
+  private String title = "test";
 
   private Integer releaseYear;
 
-  private Boolean isIdDefined = false;
-  private Boolean isTitleDefined = false;
-  private Boolean isReleaseYearDefined = false;
-
   public Show() {
+  }
+
+  public Show(String id, String title, Integer releaseYear) {
+    this.id = id;
+    this.title = title;
+    this.releaseYear = releaseYear;
   }
 
   public String getId() {
@@ -20,7 +27,6 @@ public class Show {
 
   public void setId(String id) {
     this.id = id;
-    this.isIdDefined = true;
   }
 
   public String getTitle() {
@@ -29,7 +35,6 @@ public class Show {
 
   public void setTitle(String title) {
     this.title = title;
-    this.isTitleDefined = true;
   }
 
   public Integer getReleaseYear() {
@@ -38,19 +43,6 @@ public class Show {
 
   public void setReleaseYear(Integer releaseYear) {
     this.releaseYear = releaseYear;
-    this.isReleaseYearDefined = true;
-  }
-
-  public boolean getIsIdDefined(){
-    return isIdDefined;
-  }
-
-  public boolean getIsTitleDefined(){
-    return isTitleDefined;
-  }
-
-  public boolean getIsReleaseYearDefined(){
-    return isReleaseYearDefined;
   }
 
   @Override
@@ -61,11 +53,12 @@ public class Show {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Show that = (Show) o;
-        return java.util.Objects.equals(id, that.id) &&
-                            java.util.Objects.equals(title, that.title) &&
-                            java.util.Objects.equals(releaseYear, that.releaseYear);
+    if (o == null || getClass() != o.getClass()) return false;
+    Show that = (Show) o;
+    return
+            java.util.Objects.equals(id, that.id) &&
+                    java.util.Objects.equals(title, that.title) &&
+                    java.util.Objects.equals(releaseYear, that.releaseYear) ;
   }
 
   @Override
@@ -73,7 +66,7 @@ public class Show {
     return java.util.Objects.hash(id, title, releaseYear);
   }
 
-  public static com.intuit.sparseupdate.generated.types.Show.Builder newBuilder() {
+  public static Builder newBuilder() {
     return new Builder();
   }
 
@@ -84,54 +77,28 @@ public class Show {
 
     private Integer releaseYear;
 
-    private boolean isIdDefined = false;
-
-    private boolean isTitleDefined = false;
-
-    private boolean isReleaseYearDefined = false;
-
-    public Show build() {
+    public com.intuit.sparseupdate.generated.types.Show build() {
       com.intuit.sparseupdate.generated.types.Show result = new com.intuit.sparseupdate.generated.types.Show();
-      if(this.isIdDefined) {
-        result.setId(this.id);
-      }
-      if(this.isTitleDefined) {
-        result.setTitle(this.title);
-      }
-      if(this.isReleaseYearDefined) {
-        result.setReleaseYear(this.releaseYear);
-      }
+      result.id = this.id;
+      result.title = this.title;
+      result.releaseYear = this.releaseYear;
       return result;
     }
 
-    public com.intuit.sparseupdate.generated.types.Show.Builder id(String id) {
+    public Builder id(String id) {
       this.id = id;
-      this.isIdDefined = true;
       return this;
     }
 
-    public com.intuit.sparseupdate.generated.types.Show.Builder title(String title) {
+    public Builder title(String title) {
       this.title = title;
-      this.isTitleDefined = true;
       return this;
     }
 
-    public com.intuit.sparseupdate.generated.types.Show.Builder releaseYear(Integer releaseYear) {
+    public Builder releaseYear(Integer releaseYear) {
       this.releaseYear = releaseYear;
-      this.isReleaseYearDefined = true;
       return this;
-    }
-
-    public boolean getIsIdDefined(){
-      return isIdDefined;
-    }
-
-    public boolean getIsTitleDefined(){
-      return isTitleDefined;
-    }
-
-    public boolean getIsReleaseYearDefined(){
-      return isReleaseYearDefined;
     }
   }
 }
+

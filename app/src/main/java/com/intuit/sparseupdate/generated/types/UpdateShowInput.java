@@ -15,7 +15,7 @@ public class UpdateShowInput {
 
   private boolean isTitleSet = false;
 
-  private String title = "test";
+  private String title;
 
   public UpdateShowInput() {
 
@@ -52,12 +52,13 @@ public class UpdateShowInput {
   }
 
   public void setReleaseYear(Integer releaseYear) {
+    System.out.println("setTitle called");
     this.releaseYear = releaseYear;
     this.isReleaseYearSet = true;
   }
 
   @JsonIgnore
-  public boolean isReleaseYearSetDefined() {
+  public boolean isReleaseYearSet() {
     return isReleaseYearSet;
   }
 
@@ -66,12 +67,13 @@ public class UpdateShowInput {
   }
 
   public void setTitle(String title) {
+    System.out.println("setTitle called");
     this.title = title;
     this.isTitleSet = true;
   }
 
   @JsonIgnore
-  public boolean isTitleSetDefined() {
+  public boolean isTitleSet() {
     return isTitleSet;
   }
 

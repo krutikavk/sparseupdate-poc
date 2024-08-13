@@ -1,6 +1,5 @@
 package com.intuit.sparseupdate;
 
-import com.intuit.sparseupdate.generated.DgsConstants;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
 import com.netflix.graphql.dgs.DgsComponent;
@@ -12,11 +11,8 @@ import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
 import graphql.schema.DataFetchingEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.*;
 
 @DgsComponent
@@ -48,7 +44,7 @@ public class ShowDataFetcher {
     }
 
     @DgsMutation
-    public Show updateShow(@InputArgument UpdateShowInput input, DataFetchingEnvironment dfe) throws NoSuchMethodException, IllegalAccessException {
+    public Show updateShow(@InputArgument UpdateShowInput input, DataFetchingEnvironment dfe) throws NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
 
 
 
@@ -67,33 +63,22 @@ public class ShowDataFetcher {
 
         Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
 
-        Show updatedShow = mapperWithReflection(show, input, rawVariables);
-        data.put(updatedShow.getId(), updatedShow);
-        return updatedShow;
+        mapperWithReflection(show, input, rawVariables);
+        return show;
     }
 
     // Using Boolean field for data field with default value "title"
-    private Show mapperWithReflection(Show show, UpdateShowInput input, Map<String, Object> rawVariables) throws NoSuchMethodException, IllegalAccessException {
-
-        System.out.println("show before: " + show);
-//        Constructor<Show> ctor = ReflectionUtils.accessibleConstructor(Show.class);
-//        ReflectionUtils.makeAccessible(ctor);
-
+    private void mapperWithReflection(Show show, UpdateShowInput input, Map<String, Object> rawVariables) throws NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
         Field[] fields = show.getClass().getDeclaredFields();
 
         for(Field field: fields) {
-            System.out.println("field: " + field);
             if(rawVariables.containsKey(field.getName())) {
-                field.setAccessible(true);
-                Type type = field.getType();
-                Object value = rawVariables.get(field.getName());
-
-                field.set(this, value);
+                Field showField = show.getClass().getDeclaredField(field.getName());
+                showField.setAccessible(true);
+                showField.set(show, rawVariables.get(field.getName()));
             }
-            System.out.println("-->show after: " + show);
         }
 
-        System.out.println("show after outside loop: " + show);
-        return show;
+        System.out.println("show updated: " + show);
     }
 }

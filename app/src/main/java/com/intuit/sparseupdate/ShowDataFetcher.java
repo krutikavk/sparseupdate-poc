@@ -2,10 +2,7 @@ package com.intuit.sparseupdate;
 
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
-import com.netflix.graphql.dgs.DgsComponent;
-import com.netflix.graphql.dgs.DgsMutation;
-import com.netflix.graphql.dgs.DgsQuery;
-import com.netflix.graphql.dgs.InputArgument;
+import com.netflix.graphql.dgs.*;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
 import graphql.schema.DataFetchingEnvironment;
@@ -44,9 +41,7 @@ public class ShowDataFetcher {
     }
 
     @DgsMutation
-    public Show updateShow(@InputArgument UpdateShowInput input, DataFetchingEnvironment dfe) throws NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
-
-
+    public Show updateShow(@InputArgument UpdateShowInput input, DgsDataFetchingEnvironment dfe) throws NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
 
         if (input != null && input.getId() == null) {
             throw new DgsBadRequestException("Invalid ID");
@@ -58,12 +53,38 @@ public class ShowDataFetcher {
             throw new DgsEntityNotFoundException(msg);
         }
 
-        System.out.println("Input Argument:" + input);
-        System.out.println("Raw variables: " + dfe.getGraphQlContext().get("rawVariables"));
+        System.out.println("\nCoerced InputArgument: " + input);
 
-        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
+        if(dfe.isArgumentSet("input")) {
+            System.out.println("Input given by customer");
+        }
 
-        mapperWithReflection(show, input, rawVariables);
+        if(dfe.isArgumentSet("title")) {
+            System.out.println("\nTitle set by customer: " + input.getTitle());
+        }
+
+        if(dfe.isArgumentSet("releaseYear")) {
+            System.out.println("ReleaseYear set by customer: " + input.getReleaseYear());
+        }
+
+        if(dfe.isArgumentSet("id")) {
+            System.out.println("ID set by customer: " + input.getId());
+        }
+
+
+        //Nested
+        if(dfe.isNestedArgumentSet("input.title")) {
+            System.out.println("\nNested Title set by customer: " + input.getTitle());
+        }
+
+        if(dfe.isNestedArgumentSet("input.releaseYear")) {
+            System.out.println("Nested ReleaseYear set by customer: " + input.getReleaseYear());
+        }
+
+        if(dfe.isNestedArgumentSet("input.id")) {
+            System.out.println("Nested ID set by customer: " + input.getId());
+        }
+
         return show;
     }
 

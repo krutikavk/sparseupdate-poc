@@ -8,7 +8,7 @@ import java.lang.String;
 public class Show {
   private String id;
 
-  private String title = "test";
+  private String title;
 
   private Integer releaseYear;
 

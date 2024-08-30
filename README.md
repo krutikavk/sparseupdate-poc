@@ -122,3 +122,83 @@ DGS automatically maps input json to input model objects using Reflection primar
 Update these methods to be aware of whether a field was set or not.  The mapToJavaObject() could be modified similar to this method [ShowDataFetcher.getInputArgument()](https://github.com/ramapalani/sparseupdate/blob/ae902fb9b92ebc07e14d6ec41ca3d766afe7da4b/app/src/main/java/com/intuit/sparseupdate/ShowDataFetcher.java#L62-L113)
 
 This could be optimized further by having some sort of caching(not doing the same task again and again) and exiting out faster when there is no BitSet field (setField awareness is not required).
+
+
+### Test isArgumentSet
+
+`isArgumentSet` feature can be used for sparse update with input types with nullable fields without default values.
+
+1. Schema: Nullable field, No default value
+```graphql
+input UpdateShowInput {
+    id: ID!
+    title: String
+    releaseYear: Int
+}
+```
+
+Input: 
+```graphql
+mutation updateShow($path: UpdateShowInput!) {
+  updateShow(input: $path) {
+    id
+    title
+    releaseYear
+  }
+}
+```
+
+Variables: 
+```json
+{
+  "path": {
+    "id": "one",
+    "releaseYear": 1985
+  }
+}
+```
+
+Output: Title unset returned correctly by the argument
+```angular2html
+Nested ReleaseYear set by customer: 1985
+Nested ID set by customer: one
+```
+
+2. Schema: Nullable field, with default value
+```graphql
+input UpdateShowInput {
+id: ID!
+title: String = "default"
+releaseYear: Int
+}
+```
+
+Input: 
+```graphql
+mutation updateShow($path: UpdateShowInput!) {
+  updateShow(input: $path) {
+    id
+    title
+    releaseYear
+  }
+}
+```
+
+Variables:
+```json
+{
+  "path": {
+    "id": "one",
+    "releaseYear": 1985
+  }
+}
+```
+
+Output: Title unset returned correctly by the argument
+```angular2html
+Nested Title set by customer: default
+Nested ReleaseYear set by customer: 1985
+Nested ID set by customer: one
+```
+
+

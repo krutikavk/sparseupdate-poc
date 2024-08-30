@@ -1,5 +1,10 @@
 package com.intuit.sparseupdate.generated.types;
 
+import java.lang.Integer;
+import java.lang.Object;
+import java.lang.Override;
+import java.lang.String;
+
 public class Show {
   private String id;
 
@@ -8,6 +13,12 @@ public class Show {
   private Integer releaseYear;
 
   public Show() {
+  }
+
+  public Show(String id, String title, Integer releaseYear) {
+    this.id = id;
+    this.title = title;
+    this.releaseYear = releaseYear;
   }
 
   public String getId() {
@@ -42,11 +53,12 @@ public class Show {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Show that = (Show) o;
-        return java.util.Objects.equals(id, that.id) &&
-                            java.util.Objects.equals(title, that.title) &&
-                            java.util.Objects.equals(releaseYear, that.releaseYear);
+    if (o == null || getClass() != o.getClass()) return false;
+    Show that = (Show) o;
+    return
+            java.util.Objects.equals(id, that.id) &&
+                    java.util.Objects.equals(title, that.title) &&
+                    java.util.Objects.equals(releaseYear, that.releaseYear) ;
   }
 
   @Override
@@ -54,7 +66,7 @@ public class Show {
     return java.util.Objects.hash(id, title, releaseYear);
   }
 
-  public static com.intuit.sparseupdate.generated.types.Show.Builder newBuilder() {
+  public static Builder newBuilder() {
     return new Builder();
   }
 
@@ -65,27 +77,28 @@ public class Show {
 
     private Integer releaseYear;
 
-    public Show build() {
-                  com.intuit.sparseupdate.generated.types.Show result = new com.intuit.sparseupdate.generated.types.Show();
-                      result.id = this.id;
-          result.title = this.title;
-          result.releaseYear = this.releaseYear;
-                      return result;
+    public com.intuit.sparseupdate.generated.types.Show build() {
+      com.intuit.sparseupdate.generated.types.Show result = new com.intuit.sparseupdate.generated.types.Show();
+      result.id = this.id;
+      result.title = this.title;
+      result.releaseYear = this.releaseYear;
+      return result;
     }
 
-    public com.intuit.sparseupdate.generated.types.Show.Builder id(String id) {
+    public Builder id(String id) {
       this.id = id;
       return this;
     }
 
-    public com.intuit.sparseupdate.generated.types.Show.Builder title(String title) {
+    public Builder title(String title) {
       this.title = title;
       return this;
     }
 
-    public com.intuit.sparseupdate.generated.types.Show.Builder releaseYear(Integer releaseYear) {
+    public Builder releaseYear(Integer releaseYear) {
       this.releaseYear = releaseYear;
       return this;
     }
   }
 }
+

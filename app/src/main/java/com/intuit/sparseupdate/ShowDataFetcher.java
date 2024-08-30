@@ -55,38 +55,23 @@ public class ShowDataFetcher {
 
         System.out.println("\nCoerced InputArgument: " + input);
 
-        if(dfe.isArgumentSet("input")) {
-            System.out.println("Input given by customer");
-        }
-
-        if(dfe.isArgumentSet("title")) {
-            System.out.println("\nTitle set by customer: " + input.getTitle());
-        }
-
-        if(dfe.isArgumentSet("releaseYear")) {
-            System.out.println("ReleaseYear set by customer: " + input.getReleaseYear());
-        }
-
-        if(dfe.isArgumentSet("id")) {
-            System.out.println("ID set by customer: " + input.getId());
-        }
-
-
-        //Nested
+        // Path of argument is independent of input name by client
         if(dfe.isNestedArgumentSet("input.title")) {
             System.out.println("\nNested Title set by customer: " + input.getTitle());
+            show.setTitle(input.getTitle());
         }
 
         if(dfe.isNestedArgumentSet("input.releaseYear")) {
             System.out.println("Nested ReleaseYear set by customer: " + input.getReleaseYear());
+            show.setReleaseYear(input.getReleaseYear());
         }
 
         if(dfe.isNestedArgumentSet("input.id")) {
             System.out.println("Nested ID set by customer: " + input.getId());
         }
-
         return show;
     }
+
 
     // Using Boolean field for data field with default value "title"
     private void mapperWithReflection(Show show, UpdateShowInput input, Map<String, Object> rawVariables) throws NoSuchMethodException, IllegalAccessException, NoSuchFieldException {

@@ -6,7 +6,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.Objects;
 
-public class UpdateShowInput {
+public class UpdateShowInput{
   private String id;
 
   private Integer releaseYear;
@@ -46,7 +46,6 @@ public class UpdateShowInput {
     this.title = title;
   }
 
-  @Override
   public String toString() {
     return "UpdateShowInput{id='" + id + "', releaseYear='" + releaseYear + "', title='" + title + "'}";
   }

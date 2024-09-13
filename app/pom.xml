@@ -52,25 +52,25 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>io.github.deweyjose</groupId>
-				<artifactId>graphqlcodegen-maven-plugin</artifactId>
-				<version>1.50</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<schemaPaths>
-						<param>src/main/resources/schema/schema.graphqls</param>
-					</schemaPaths>
-					<packageName>com.intuit.sparseupdate.generated</packageName>
-				</configuration>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>io.github.deweyjose</groupId>-->
+<!--				<artifactId>graphqlcodegen-maven-plugin</artifactId>-->
+<!--				<version>1.50</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>generate-sources</phase>-->
+<!--						<goals>-->
+<!--							<goal>generate</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--				<configuration>-->
+<!--					<schemaPaths>-->
+<!--						<param>src/main/resources/schema/schema.graphqls</param>-->
+<!--					</schemaPaths>-->
+<!--					<packageName>com.intuit.sparseupdate.generated</packageName>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>

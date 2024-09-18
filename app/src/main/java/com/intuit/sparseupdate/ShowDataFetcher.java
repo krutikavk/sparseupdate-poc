@@ -3,7 +3,7 @@ package com.intuit.sparseupdate;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
 import com.intuit.sparseupdate.generated.types.UpdateShowInputInvocationHandler;
-import com.intuit.sparseupdate.generated.types.IUpdateShowInputProxy;
+import com.intuit.sparseupdate.generated.types.IUpdateShowInput;
 import com.netflix.graphql.dgs.*;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
@@ -51,15 +51,23 @@ public class ShowDataFetcher {
         }
         Show show = data.get(input.getId());
 
+        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
+
+
+
         UpdateShowInput targetObject = new UpdateShowInput();
-        IUpdateShowInputProxy proxyObject = (IUpdateShowInputProxy) Proxy.newProxyInstance(
-                IUpdateShowInputProxy.class.getClassLoader(),
-                new Class<?>[] { IUpdateShowInputProxy.class },
-                new UpdateShowInputInvocationHandler(targetObject)
+        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(targetObject);
+        IUpdateShowInput proxyObject = (IUpdateShowInput) Proxy.newProxyInstance(
+                IUpdateShowInput.class.getClassLoader(),
+                new Class<?>[] { IUpdateShowInput.class },
+                handler
         );
 
-        System.out.println("targetObject.getTitle(): " + targetObject.getTitle());
-        System.out.println("targetObject.getReleaseYear(): " + targetObject.getTitle());
+        //Call targetObject functions on proxyObject instead
+
+
+        System.out.println("targetObject.getTitle(): " + proxyObject.getTitle());
+        System.out.println("targetObject.getReleaseYear(): " + proxyObject.getTitle());
 
         return show;
     }

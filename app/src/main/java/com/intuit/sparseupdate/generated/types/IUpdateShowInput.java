@@ -1,6 +1,11 @@
 package com.intuit.sparseupdate.generated.types;
 
-public interface IUpdateShowInputProxy {
+public interface IUpdateShowInput {
+
+    String getId();
+
+    void setId(String id);
+
     public Integer getReleaseYear();
 
     public void setReleaseYear(Integer releaseYear);
@@ -9,7 +14,7 @@ public interface IUpdateShowInputProxy {
 
     public void setTitle(String title);
 
-    //Should Boolean Fields be added to this proxy or implementation of this proxy?
-    public Boolean isTitleSet();
+    // Presence Fields
     public Boolean isReleaseYearSet();
+    public Boolean isTitleSet();
 }

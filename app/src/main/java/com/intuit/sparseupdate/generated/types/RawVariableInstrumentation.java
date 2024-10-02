@@ -23,6 +23,7 @@ public class RawVariableInstrumentation extends SimpleInstrumentation {
         Map<String, Object> rawVariables = (Map<String, Object>) parameters.getVariables().get("input");
 
         GraphQLContext ctx = parameters.getExecutionInput().getGraphQLContext();
+        System.out.println("===>context: " + parameters.getExecutionInput().getGraphQLContext().getClass());
         ctx.put("rawVariables", rawVariables);
 
         return super.beginExecution(parameters, state);

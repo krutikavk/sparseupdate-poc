@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 
 @DgsComponent
@@ -44,7 +46,7 @@ public class ShowDataFetcher {
     }
 
     @DgsMutation
-    public Show updateShow(@InputArgument UpdateShowInput input, DgsDataFetchingEnvironment dfe) throws NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
+    public Show updateShow(@InputArgument UpdateShowInput input, DgsDataFetchingEnvironment dfe) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
 
         if (input != null && input.getId() == null) {
             throw new DgsBadRequestException("Invalid ID");
@@ -52,8 +54,8 @@ public class ShowDataFetcher {
         Show show = data.get(input.getId());
 
         Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
-
-
+        //Get input variables as kay
+//        Map<String, Object> rawVar = dfe.getVariables();
 
         UpdateShowInput targetObject = new UpdateShowInput();
         UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(targetObject);
@@ -63,11 +65,20 @@ public class ShowDataFetcher {
                 handler
         );
 
-        //Call targetObject functions on proxyObject instead
 
+        //proxyObject
+        if(rawVariables.containsKey("title")) {
+            proxyObject.setIsTitleSet();
+        }
 
-        System.out.println("targetObject.getTitle(): " + proxyObject.getTitle());
-        System.out.println("targetObject.getReleaseYear(): " + proxyObject.getTitle());
+        if(rawVariables.containsKey("releaseYear")) {
+            proxyObject.setIsReleaseYearSet();
+        }
+
+//        System.out.println("proxyObject title presence field: " + proxyObject.isTitleSet() + " releaseYear presence field: " + proxyObject.isReleaseYearSet());
+//
+//        System.out.println("targetObject.getTitle(): " + proxyObject.getTitle());
+//        System.out.println("targetObject.getReleaseYear(): " + proxyObject.getTitle());
 
         return show;
     }

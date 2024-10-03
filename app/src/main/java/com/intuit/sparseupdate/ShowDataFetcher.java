@@ -1,5 +1,6 @@
 package com.intuit.sparseupdate;
 
+import com.intuit.sparseupdate.generated.DgsConstants;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
 import com.intuit.sparseupdate.generated.types.UpdateShowInputInvocationHandler;
@@ -53,24 +54,39 @@ public class ShowDataFetcher {
         }
         Show show = data.get(input.getId());
 
-        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
-        //Get input variables as kay
-//        Map<String, Object> rawVar = dfe.getVariables();
+        /*
+            mutation updateShow {
+              updateShow(id: "one", releaseYear: 1985) {
+                id
+                title
+                releaseYear
+              }
+            }
+             No variables supplied.
 
-        UpdateShowInput targetObject = new UpdateShowInput();
-        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(targetObject);
+             ==> Value of rawVariables is undefined/not extracted for inline variables
+                 or client input values in variable other than set key "input" in RawVariableInstrumentation class
+
+             Better way is to get raw variable map as on line 75.
+         */
+//        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
+
+        Map<String,Object> rawVariables = dfe.getExecutionStepInfo().getArgument(
+                DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
+
+        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(input);
         IUpdateShowInput proxyObject = (IUpdateShowInput) Proxy.newProxyInstance(
                 IUpdateShowInput.class.getClassLoader(),
                 new Class<?>[] { IUpdateShowInput.class },
                 handler
         );
 
-
-        //proxyObject
+        //proxyObject invocation handler
         if(rawVariables.containsKey("title")) {
             proxyObject.setIsTitleSet();
         }
 
+        //proxyObject invocation handler
         if(rawVariables.containsKey("releaseYear")) {
             proxyObject.setIsReleaseYearSet();
         }

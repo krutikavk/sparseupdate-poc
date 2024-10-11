@@ -12,6 +12,12 @@
 	<artifactId>sparseupdate</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>sparseupdate</name>
+	<repositories>
+		<repository>
+			<id>sonatype-releases</id>
+			<url>https://oss.sonatype.org/content/repositories/releases/</url>
+		</repository>
+	</repositories>
 	<description>Demo project explaining Sparse Update problem</description>
 	<properties>
 		<java.version>17</java.version>
@@ -44,6 +50,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>fr.inria.gforge.spoon</groupId>
+			<artifactId>spoon-maven-plugin</artifactId>
+			<version>3.8.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -52,25 +63,38 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>io.github.deweyjose</groupId>-->
-<!--				<artifactId>graphqlcodegen-maven-plugin</artifactId>-->
-<!--				<version>1.50</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<phase>generate-sources</phase>-->
-<!--						<goals>-->
-<!--							<goal>generate</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--				<configuration>-->
-<!--					<schemaPaths>-->
-<!--						<param>src/main/resources/schema/schema.graphqls</param>-->
-<!--					</schemaPaths>-->
-<!--					<packageName>com.intuit.sparseupdate.generated</packageName>-->
-<!--				</configuration>-->
-<!--			</plugin>-->
+			<plugin>
+				<groupId>io.github.deweyjose</groupId>
+				<artifactId>graphqlcodegen-maven-plugin</artifactId>
+				<version>1.50</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<schemaPaths>
+						<param>src/main/resources/schema/schema.graphqls</param>
+					</schemaPaths>
+					<packageName>com.intuit.sparseupdate.generated</packageName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>fr.inria.gforge.spoon</groupId>
+				<artifactId>spoon-maven-plugin</artifactId>
+				<version>3.8.0</version><!-- replace LATEST by the value of the badge at the top of the README -->
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>

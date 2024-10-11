@@ -14,11 +14,18 @@ public class UpdateShowInputInvocationHandler  implements InvocationHandler  {
 
         //For setters, set fields
         // https://amitstechblog.wordpress.com/2011/07/24/java-proxies-and-undeclaredthrowableexception/
+        // Use regex to extract property name inside
+
+        //fieldPresence Set<String>
+        //["id", "title", "releaseYear"]
+
         try {
-            if(method.getName().equals("setIsTitleSet")) {
+            if(method.getName().equals("isTitleSet")) {
+                // if fieldPresence contains "title", update "title"
+
                 System.out.println("getTitle invoked");
 
-                // Update isTitleSet through reflection
+                // Update isTitleSet through reflection--second layer of reflection
                 Field field = proxy.getClass().getDeclaredField("isTitleSet");
                 field.setAccessible(true);
                 field.set(field, "true");
@@ -28,7 +35,7 @@ public class UpdateShowInputInvocationHandler  implements InvocationHandler  {
             if(method.getName().equals("setIsReleaseYearSet")) {
                 System.out.println("getReleaseYear invoked");
 
-                // Update isTitleSet through reflection
+                // Update isTitleSet through reflection--second layer of reflection
                 Field field = proxy.getClass().getDeclaredField("isReleaseYearSet");
                 field.setAccessible(true);
                 field.set(field, "true");

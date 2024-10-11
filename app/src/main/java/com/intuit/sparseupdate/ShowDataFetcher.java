@@ -68,11 +68,12 @@ public class ShowDataFetcher {
                  or client input values in variable other than set key "input" in RawVariableInstrumentation class
 
              Better way is to get raw variable map as on line 75.
+             --> Also intercept beginDataFetcher()
          */
-//        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
+        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
 
-        Map<String,Object> rawVariables = dfe.getExecutionStepInfo().getArgument(
-                DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
+//        Map<String,Object> rawVariables = dfe.getExecutionStepInfo().getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
+        // dfe.getField().getArguments()
 
         UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(input);
         IUpdateShowInput proxyObject = (IUpdateShowInput) Proxy.newProxyInstance(
@@ -98,5 +99,10 @@ public class ShowDataFetcher {
 
         return show;
     }
+
+//    var pattern = Pattern(“setIs(?<name>\w+)Set”)
+//    Matcher m = pattern.matcher(method.getName())
+//    If (m.matched()) {}
+//    Var name = matcher.group(“name”)
 
 }

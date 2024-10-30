@@ -6,14 +6,14 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.Objects;
 
-public class UpdateShowInput implements IUpdateShowInput{
+public class UpdateShowInput implements IUpdateShowInput {
   private String id;
 
   private Integer releaseYear;
 
   private String title;
 
-  public UpdateShowInput() {
+  public UpdateShowInput(){
   }
 
   public UpdateShowInput(String id, Integer releaseYear, String title) {
@@ -31,40 +31,35 @@ public class UpdateShowInput implements IUpdateShowInput{
   }
 
   @Override
+  public Boolean isIdSet() {
+    return null;
+  }
+
   public Integer getReleaseYear() {
     return releaseYear;
   }
 
-  @Override
   public void setReleaseYear(Integer releaseYear) {
     this.releaseYear = releaseYear;
   }
 
   @Override
+  public Boolean isReleaseYearSet() {
+    return null;
+  }
+
   public String getTitle() {
     return title;
   }
 
-  @Override
   public void setTitle(String title) {
     this.title = title;
   }
 
   @Override
-  public Boolean isReleaseYearSet() {
-    return isReleaseYearSet;
-  }
-
-  @Override
   public Boolean isTitleSet() {
-    return isTitleSet;
+    return null;
   }
-
-  //Functions called by UpdateShowInputInvocationHandler to interface Boolean presence fields
-  @Override
-  public void setIsTitleSet() {}
-  @Override
-  public void setIsReleaseYearSet() {}
 
   @Override
   public String toString() {

@@ -49,17 +49,17 @@ public class RawVariableInstrumentation extends SimpleInstrumentation {
     }
 
     // Transform InstrumentationFieldFetchParameters Supplier<DataFetchingEnvironment> environment;
-    @Override
-    public @Nullable InstrumentationContext<Object> beginFieldFetch(InstrumentationFieldFetchParameters parameters, InstrumentationState state) {
-        new InstrumentationFieldFetchParameters(parameters.getExecutionContext(), parameters.)
-        return super.beginFieldFetch(parameters, state);
-    }
-
-    @Override
-    public @NotNull DataFetcher<?> instrumentDataFetcher(DataFetcher<?> dataFetcher, InstrumentationFieldFetchParameters parameters, InstrumentationState state) {
-
-        return super.instrumentDataFetcher(dataFetcher, parameters, state);
-    }
+//    @Override
+//    public @Nullable InstrumentationContext<Object> beginFieldFetch(InstrumentationFieldFetchParameters parameters, InstrumentationState state) {
+//        new InstrumentationFieldFetchParameters(parameters.getExecutionContext(), parameters.)
+//        return super.beginFieldFetch(parameters, state);
+//    }
+//
+//    @Override
+//    public @NotNull DataFetcher<?> instrumentDataFetcher(DataFetcher<?> dataFetcher, InstrumentationFieldFetchParameters parameters, InstrumentationState state) {
+//
+//        return super.instrumentDataFetcher(dataFetcher, parameters, state);
+//    }
 }
 
 

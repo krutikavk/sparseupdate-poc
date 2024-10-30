@@ -70,12 +70,11 @@ public class ShowDataFetcher {
              Better way is to get raw variable map as on line 75.
              --> Also intercept beginDataFetcher()
          */
-        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
+//        Map<String, Object> rawVariables = dfe.getGraphQlContext().get("rawVariables");
 
-//        Map<String,Object> rawVariables = dfe.getExecutionStepInfo().getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
-        // dfe.getField().getArguments()
+        Map<String,Object> rawArgumentsMap = dfe.getExecutionStepInfo().getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
 
-        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(input);
+        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(input, rawArgumentsMap);
         IUpdateShowInput proxyObject = (IUpdateShowInput) Proxy.newProxyInstance(
                 IUpdateShowInput.class.getClassLoader(),
                 new Class<?>[] { IUpdateShowInput.class },
@@ -83,26 +82,15 @@ public class ShowDataFetcher {
         );
 
         //proxyObject invocation handler
-        if(rawVariables.containsKey("title")) {
-            proxyObject.setIsTitleSet();
+        if(proxyObject.isTitleSet()) {
+            show.setTitle(proxyObject.getTitle());
         }
 
-        //proxyObject invocation handler
-        if(rawVariables.containsKey("releaseYear")) {
-            proxyObject.setIsReleaseYearSet();
+        if(proxyObject.isReleaseYearSet()) {
+            show.setReleaseYear(proxyObject.getReleaseYear());
         }
-
-//        System.out.println("proxyObject title presence field: " + proxyObject.isTitleSet() + " releaseYear presence field: " + proxyObject.isReleaseYearSet());
-//
-//        System.out.println("targetObject.getTitle(): " + proxyObject.getTitle());
-//        System.out.println("targetObject.getReleaseYear(): " + proxyObject.getTitle());
 
         return show;
     }
-
-//    var pattern = Pattern(“setIs(?<name>\w+)Set”)
-//    Matcher m = pattern.matcher(method.getName())
-//    If (m.matched()) {}
-//    Var name = matcher.group(“name”)
 
 }

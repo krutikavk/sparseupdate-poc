@@ -1,24 +1,19 @@
-package com.intuit.sparseupdate.generated.types;
+package com.intuit.sparseupdate.modified;
 
-import com.intuit.sparseupdate.modified.IUpdateShowInput;
-
-import java.lang.Integer;
-import java.lang.Object;
-import java.lang.Override;
-import java.lang.String;
 import java.util.Objects;
 
-public class UpdateShowInput {
+//This name can be according to an agreed convention
+public class UpdateShowInputForSparseUpdate implements IUpdateShowInput {
   private String id;
 
   private Integer releaseYear;
 
   private String title;
 
-  public UpdateShowInput(){
+  public UpdateShowInputForSparseUpdate(){
   }
 
-  public UpdateShowInput(String id, Integer releaseYear, String title) {
+  public UpdateShowInputForSparseUpdate(String id, Integer releaseYear, String title) {
     this.id = id;
     this.releaseYear = releaseYear;
     this.title = title;
@@ -32,12 +27,22 @@ public class UpdateShowInput {
     this.id = id;
   }
 
+  @Override
+  public Boolean isIdSet() {
+    return null;
+  }
+
   public Integer getReleaseYear() {
     return releaseYear;
   }
 
   public void setReleaseYear(Integer releaseYear) {
     this.releaseYear = releaseYear;
+  }
+
+  @Override
+  public Boolean isReleaseYearSet() {
+    return null;
   }
 
   public String getTitle() {
@@ -49,6 +54,11 @@ public class UpdateShowInput {
   }
 
   @Override
+  public Boolean isTitleSet() {
+    return null;
+  }
+
+  @Override
   public String toString() {
     return "UpdateShowInput{id='" + id + "', releaseYear='" + releaseYear + "', title='" + title + "'}";
   }
@@ -57,7 +67,7 @@ public class UpdateShowInput {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    UpdateShowInput that = (UpdateShowInput) o;
+    UpdateShowInputForSparseUpdate that = (UpdateShowInputForSparseUpdate) o;
     return Objects.equals(id, that.id) &&
             Objects.equals(releaseYear, that.releaseYear) &&
             Objects.equals(title, that.title);
@@ -79,8 +89,8 @@ public class UpdateShowInput {
 
     private String title;
 
-    public UpdateShowInput build() {
-      UpdateShowInput result = new UpdateShowInput();
+    public UpdateShowInputForSparseUpdate build() {
+      UpdateShowInputForSparseUpdate result = new UpdateShowInputForSparseUpdate();
       result.id = this.id;
       result.releaseYear = this.releaseYear;
       result.title = this.title;

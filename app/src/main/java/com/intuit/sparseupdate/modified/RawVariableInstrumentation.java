@@ -1,4 +1,4 @@
-package com.intuit.sparseupdate.generated.types;
+package com.intuit.sparseupdate.modified;
 
 import graphql.ExecutionResult;
 import graphql.GraphQLContext;

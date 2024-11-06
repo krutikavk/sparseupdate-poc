@@ -1,4 +1,4 @@
-package com.intuit.sparseupdate.generated.types;
+package com.intuit.sparseupdate.modified;
 
 public interface IUpdateShowInput {
 
@@ -6,19 +6,17 @@ public interface IUpdateShowInput {
 
     void setId(String id);
 
-    public Boolean isIdSet();
-
-
     public Integer getReleaseYear();
 
     public void setReleaseYear(Integer releaseYear);
-
-    public Boolean isReleaseYearSet() ;
 
     public String getTitle();
 
     public void setTitle(String title);
 
+    // Checkers for presence of data fields in customer input
+    public Boolean isIdSet();
     public Boolean isTitleSet();
+    public Boolean isReleaseYearSet() ;
 
 }

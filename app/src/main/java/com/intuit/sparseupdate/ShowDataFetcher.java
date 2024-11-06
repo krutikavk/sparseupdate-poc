@@ -3,19 +3,16 @@ package com.intuit.sparseupdate;
 import com.intuit.sparseupdate.generated.DgsConstants;
 import com.intuit.sparseupdate.generated.types.Show;
 import com.intuit.sparseupdate.generated.types.UpdateShowInput;
-import com.intuit.sparseupdate.generated.types.UpdateShowInputInvocationHandler;
-import com.intuit.sparseupdate.generated.types.IUpdateShowInput;
+import com.intuit.sparseupdate.modified.UpdateShowInputForSparseUpdate;
+import com.intuit.sparseupdate.modified.UpdateShowInputInvocationHandler;
+import com.intuit.sparseupdate.modified.IUpdateShowInput;
 import com.netflix.graphql.dgs.*;
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException;
-import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException;
-import graphql.schema.DataFetchingEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 
 @DgsComponent
@@ -74,12 +71,23 @@ public class ShowDataFetcher {
 
         Map<String,Object> rawArgumentsMap = dfe.getExecutionStepInfo().getArgument(DgsConstants.MUTATION.UPDATESHOW_INPUT_ARGUMENT.Input);
 
-        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(input, rawArgumentsMap);
+//        dummyHandler = customPlugin.getHandler();
+//        dummyProxy = customPlugin.getProxyObject();
+
+        UpdateShowInputForSparseUpdate updateShowInputForSparseUpdate = new UpdateShowInputForSparseUpdate(input.getId(), input.getReleaseYear(), input.getTitle());
+
+        // handler on input object
+        UpdateShowInputInvocationHandler handler = new UpdateShowInputInvocationHandler(updateShowInputForSparseUpdate, rawArgumentsMap);
         IUpdateShowInput proxyObject = (IUpdateShowInput) Proxy.newProxyInstance(
                 IUpdateShowInput.class.getClassLoader(),
+                // array of 2 interfaces: DGS generated, one we create with "isFieldSet"
                 new Class<?>[] { IUpdateShowInput.class },
                 handler
         );
+
+        // proxy.isisFieldPresent("title")
+
+
 
         //proxyObject invocation handler
         if(proxyObject.isTitleSet()) {

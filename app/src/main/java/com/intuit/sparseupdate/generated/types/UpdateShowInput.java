@@ -1,14 +1,12 @@
 package com.intuit.sparseupdate.generated.types;
 
-import com.intuit.sparseupdate.modified.IUpdateShowInput;
-
 import java.lang.Integer;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Objects;
 
-public class UpdateShowInput {
+public class UpdateShowInput implements IUpdateShowInput {
   private String id;
 
   private Integer releaseYear;

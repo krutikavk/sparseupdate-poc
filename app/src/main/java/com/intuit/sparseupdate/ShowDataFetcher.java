@@ -56,6 +56,7 @@ public class ShowDataFetcher {
         // ProxyObject
         IUpdateShowInput updateShowInput = (IUpdateShowInput) SparseUpdateInvocationHandler.getDynamicProxy(input, rawArgumentsMap);
 
+        // To do: Add wrapper to handler for this functionality
         if(((IPresenceFields)updateShowInput).isFieldPresent("title")) {
             show.setTitle(updateShowInput.getTitle());
         }

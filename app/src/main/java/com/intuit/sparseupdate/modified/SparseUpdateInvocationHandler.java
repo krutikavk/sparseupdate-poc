@@ -18,6 +18,7 @@ public class SparseUpdateInvocationHandler implements InvocationHandler  {
         this.fieldPresence = new HashSet<>();
 
         //Initialize fieldPresence = ["id", "title", "releaseYear"]
+        // Directly copy map into set, no loop needed
         for (Map.Entry<String,Object> entry : rawArgumentsMap.entrySet()) {
             fieldPresence.add(entry.getKey());
         }
@@ -48,30 +49,6 @@ public class SparseUpdateInvocationHandler implements InvocationHandler  {
             if (declaringClass == IPresenceFields.class && args.length == 1) {
                 return fieldPresence.contains(args[0]);
             }
-            else {
-                for (int i = 0; i < interfaces.length; i++) {
-                    if (declaringClass.isAssignableFrom(interfaces[i])) {
-                        return method.invoke(delegate, args);
-                    }
-                }
-            }
-
-//            if(method.getName().equals("isTitleSet")) {
-//                // if fieldPresence contains "title", update "title"
-//                System.out.println("getTitle invoked");
-//                if(fieldPresence.contains("title"))
-//                    return true;
-//                else
-//                    return false;
-//
-//            }
-//            if(method.getName().equals("isReleaseYearSet")) {
-//                System.out.println("getReleaseYear invoked");
-//                if(fieldPresence.contains("releaseYear"))
-//                    return true;
-//                else
-//                    return false;
-//            }
             return method.invoke(delegate, args);
         } catch (InvocationTargetException e) {
             throw e.getCause();

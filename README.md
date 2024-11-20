@@ -1,9 +1,12 @@
 # GraphQL API Sparse Update: Runtime POC with Dynamic Proxy
-This project is a demonstration of this issue: [dgs-codegen-issue-609](https://github.com/Netflix/dgs-codegen/issues/609)
+This project is a demonstration of sparse update with client input incorporated in the same input class.
 
+This design uses a dynamic proxy to extend the functionality of UpdateShowInput class through a dynamic Proxy. 
+This way, knowledge of client-provided object rests with input object itself and can be propagated to any downstream applications using this field.
+Additional functionality IPresenceFields.isFieldPresent() input object in DGS mutation exposes presence of input fields in client-provided input.
 
 ## How to run the app
-* Clone [this](https://github.com/ramapalani/sparseupdate) git repository 
+* Clone [this](https://github.com/krutikavk/sparseupdate-poc) git repository 
 * Start the DGS/Spring boot app using this command
 ```
 cd app
@@ -15,7 +18,7 @@ cd app
 ```shell
 # Install Java 17 or above
 # Checkout the reproducing issue tag
-git checkout dynamic-proxy-updated
+git checkout dynamic-proxy-final
 cd app
 mvn -N wrapper:wrapper -Dmaven=3.9.5
 # Build and run the DGS springboot app

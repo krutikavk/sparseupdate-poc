@@ -5,6 +5,9 @@ This design uses a dynamic proxy to extend the functionality of UpdateShowInput 
 This way, knowledge of client-provided object rests with input object itself and can be propagated to any downstream applications using this field.
 Additional functionality IPresenceFields.isFieldPresent() input object in DGS mutation exposes presence of input fields in client-provided input.
 
+<img width="698" alt="image" src="https://github.com/user-attachments/assets/16702e23-1100-4191-9121-e2cae5ecabdb">
+
+
 ## How to run the app
 * Clone [this](https://github.com/krutikavk/sparseupdate-poc) git repository 
 * Start the DGS/Spring boot app using this command

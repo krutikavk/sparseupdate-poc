@@ -22,6 +22,7 @@ public class UpdateShowInput implements IUpdateShowInput {
     this.title = title;
   }
 
+  @Override
   public String getId() {
     return id;
   }
@@ -30,6 +31,7 @@ public class UpdateShowInput implements IUpdateShowInput {
     this.id = id;
   }
 
+  @Override
   public Integer getReleaseYear() {
     return releaseYear;
   }
@@ -38,6 +40,7 @@ public class UpdateShowInput implements IUpdateShowInput {
     this.releaseYear = releaseYear;
   }
 
+  @Override
   public String getTitle() {
     return title;
   }

@@ -2,6 +2,7 @@ package com.intuit.sparseupdate.modified;
 
 import java.lang.reflect.*;
 import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -12,16 +13,9 @@ public class SparseUpdateInvocationHandler implements InvocationHandler  {
     private Set<String> fieldPresence;
 
     public SparseUpdateInvocationHandler(Object input, Class<?>[] interfaces, Map<String, Object> rawArgumentsMap) {
-
         this.delegate = input;
         this.interfaces = interfaces;
-        this.fieldPresence = new HashSet<>();
-
-        //Initialize fieldPresence = ["id", "title", "releaseYear"]
-        // Directly copy map into set, no loop needed
-        for (Map.Entry<String,Object> entry : rawArgumentsMap.entrySet()) {
-            fieldPresence.add(entry.getKey());
-        }
+        this.fieldPresence = new HashSet<>(rawArgumentsMap.keySet());
     }
 
     public static Object getDynamicProxy(Object obj, Map<String, Object> rawArgumentsMap) {
